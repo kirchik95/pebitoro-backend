@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2023"],
+    "baseUrl": "./",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": true,
+    "noEmit": false,
+    "typeRoots": ["src/types", "node_modules/@types"],
+    "paths": {
+      "@db/*": ["src/db/*"],
+      "@plugins/*": ["src/plugins/*"],
+      "@routes/*": ["src/routes/*"],
+      "@modules/*": ["src/modules/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
