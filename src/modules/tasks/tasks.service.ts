@@ -17,16 +17,30 @@ export const getTaskById = async (request: FastifyRequest, id: number) => {
   return task;
 };
 
-export const createTask = async (request: FastifyRequest, data: { title: string; description?: string }) => {
+export const createTask = async (
+  request: FastifyRequest,
+  data: { title: string; description?: string; status: string },
+) => {
   const { db } = request.server;
 
-  const [task] = await db
-    .insert(tasks)
-    .values({
-      title: data.title,
-      description: data.description,
-    })
-    .returning();
+  const [task] = await db.insert(tasks).values(data).returning();
 
   return getTaskById(request, task.id);
+};
+
+export const updateTask = async (
+  request: FastifyRequest,
+  data: { id: number; title?: string; description?: string; status?: string },
+) => {
+  const { db } = request.server;
+
+  await db.update(tasks).set(data).where(eq(tasks.id, data.id));
+
+  return getTaskById(request, data.id);
+};
+
+export const deleteTask = async (request: FastifyRequest, id: number) => {
+  const { db } = request.server;
+
+  await db.delete(tasks).where(eq(tasks.id, id));
 };

@@ -29,6 +29,7 @@ This is the backend for the pebitoro project.
 2. Create a .env file in the root directory and add the following variables:
 
    ```
+   NODE_ENV=development
    DATABASE_URL=your_database_url_here
    JWT_SECRET=your_jwt_secret_here
    ```
@@ -46,8 +47,8 @@ This is the backend for the pebitoro project.
 4. Generate database migrations:
 
    ```
-   npm run migration:generate
-   npm run migration:apply
+   npm run db:generate
+   npm run db:migrate
    ```
 
 5. Start the development server:

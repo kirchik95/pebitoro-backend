@@ -4,20 +4,24 @@ services:
     image: postgres
     container_name: pebitoro_db
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: app_db
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+      POSTGRES_DB: ${DB_NAME:-app_db}
     ports:
-      - '5432:5432'
+      - '${DB_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts:/scripts
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-admin} -d ${DB_NAME:-app_db}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - lms_network
+      - app_network
 
 volumes:
   postgres_data:
 
 networks:
-  lms_network:
+  app_network:
     driver: bridge

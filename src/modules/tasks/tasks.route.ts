@@ -1,18 +1,22 @@
 import { FastifyInstance } from 'fastify';
-import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { Type } from '@sinclair/typebox';
 
-import { createTaskHandler, getTaskByIdHandler, getTasksHandler } from './tasks.controller';
+import {
+  createTaskHandler,
+  deleteTaskHandler,
+  getTaskByIdHandler,
+  getTasksHandler,
+  updateTaskHandler,
+} from './tasks.controller';
 import { TaskSchema } from './tasks.schema';
 
 const taskRoutes = (fastify: FastifyInstance) => {
-  fastify.withTypeProvider<TypeBoxTypeProvider>().route({
-    method: 'GET',
-    url: '/',
+  fastify.get('/', {
+    preValidation: [fastify.authenticate],
     handler: getTasksHandler,
   });
-
   fastify.get('/:id', {
+    preValidation: [fastify.authenticate],
     schema: {
       params: Type.Object({
         id: Type.Integer(),
@@ -26,19 +30,49 @@ const taskRoutes = (fastify: FastifyInstance) => {
     },
     handler: getTaskByIdHandler,
   });
-
   fastify.post('/', {
+    preValidation: [fastify.authenticate],
     schema: {
       body: Type.Object({
         title: Type.String(),
-        description: Type.String(),
-        userId: Type.Integer(),
+        description: Type.Optional(Type.String()),
       }),
       response: {
         201: TaskSchema,
       },
     },
     handler: createTaskHandler,
+  });
+  fastify.delete('/:id', {
+    preValidation: [fastify.authenticate],
+    schema: {
+      params: Type.Object({
+        id: Type.Integer(),
+      }),
+      response: {
+        200: Type.Object({
+          message: Type.String(),
+        }),
+      },
+    },
+    handler: deleteTaskHandler,
+  });
+  fastify.put('/:id', {
+    preValidation: [fastify.authenticate],
+    schema: {
+      params: Type.Object({
+        id: Type.Integer(),
+      }),
+      body: Type.Object({
+        title: Type.Optional(Type.String()),
+        description: Type.Optional(Type.String()),
+        status: Type.Optional(Type.String()),
+      }),
+      response: {
+        200: TaskSchema,
+      },
+    },
+    handler: updateTaskHandler,
   });
 };
 

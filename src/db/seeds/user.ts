@@ -19,8 +19,9 @@ const seed = async () => {
     const user = await db
       .insert(users)
       .values({
-        name: 'John Doe',
-        age: 30,
+        firstName: 'John',
+        lastName: 'Doe',
+        password: '123456',
         email: 'johndoe@mail.com',
       })
       .returning();
