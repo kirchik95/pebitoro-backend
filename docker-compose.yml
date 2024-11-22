@@ -27,6 +27,7 @@ services:
     container_name: pebitoro_backend
     environment:
       NODE_ENV: production
+      JWT_SECRET: 1a8595cf0278acbcf968d1abcea6f958ad69cfa34c50d10954884a65e6c2e8b3597bd298f23e3e8b77ac5d86487645268dbf9f583c0b9a8c53c0f2630c095844
       DB_USER: ${DB_USER:-admin}
       DB_PASSWORD: ${DB_PASSWORD:-root}
       DB_NAME: ${DB_NAME:-app_db}

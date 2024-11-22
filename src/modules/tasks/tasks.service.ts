@@ -19,7 +19,7 @@ export const getTaskById = async (request: FastifyRequest, id: number) => {
 
 export const createTask = async (
   request: FastifyRequest,
-  data: { title: string; description?: string; status: string },
+  data: { title: string; description?: string },
 ) => {
   const { db } = request.server;
 

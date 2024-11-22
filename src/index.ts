@@ -40,9 +40,16 @@ fastify.register(taskRoutes, { prefix: '/api/tasks' });
 
 const server = async () => {
   try {
-    await fastify.listen({ port: Number(process.env.PORT) || 3000 });
+    await fastify.listen({
+      port: Number(process.env.PORT) || 3000,
+      host: process.env.HOST || '0.0.0.0',
+    });
 
-    console.log(`Server is running on: ${(fastify.server.address() as { port: number }).port}`);
+    console.log(
+      `Server is running on: http://${process.env.HOST || '0.0.0.0'}:${Number(
+        process.env.PORT || 3000,
+      )}`,
+    );
   } catch (err) {
     console.log('Error starting server:', err);
     fastify.log.error(err);
