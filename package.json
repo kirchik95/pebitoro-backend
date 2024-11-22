@@ -12,6 +12,9 @@
     "docker:start": "docker-compose start",
     "docker:stop": "docker-compose stop",
     "docker:remove": "docker-compose down -v",
+    "docker:db": "docker-compose up db",
+    "docker:db:stop": "docker-compose stop db",
+    "docker:db:restart": "docker-compose restart db",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "prepare": "husky"
@@ -50,14 +53,11 @@
     "pg": "^8.13.1"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx,json,css,scss,md}": [
+    "src/**/*.{ts,json,md}": [
       "prettier --write"
     ],
-    "src/**/*.{ts,tsx}": [
+    "src/**/*.{ts}": [
       "eslint --fix"
-    ],
-    "src/**/*.{css,scss}": [
-      "stylelint --fix"
     ]
   }
 }
