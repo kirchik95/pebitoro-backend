@@ -56,7 +56,7 @@
     "src/**/*.{ts,json,md}": [
       "prettier --write"
     ],
-    "src/**/*.{ts}": [
+    "src/**/*.ts": [
       "eslint --fix"
     ]
   }
