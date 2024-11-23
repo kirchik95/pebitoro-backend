@@ -12,7 +12,7 @@
     "docker:start": "docker-compose start",
     "docker:stop": "docker-compose stop",
     "docker:remove": "docker-compose down -v",
-    "docker:db": "docker-compose up db",
+    "docker:db": "docker-compose up db -d",
     "docker:db:stop": "docker-compose stop db",
     "docker:db:restart": "docker-compose restart db",
     "db:generate": "drizzle-kit generate",

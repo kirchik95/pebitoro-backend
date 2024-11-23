@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres
-    container_name: pebitoro_db
+    container_name: db
     environment:
       POSTGRES_USER: ${DB_USER:-admin}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: pebitoro_backend
+    container_name: backend
     environment:
       NODE_ENV: production
       JWT_SECRET: 1a8595cf0278acbcf968d1abcea6f958ad69cfa34c50d10954884a65e6c2e8b3597bd298f23e3e8b77ac5d86487645268dbf9f583c0b9a8c53c0f2630c095844
@@ -37,6 +37,18 @@ services:
       - '3000:3000'
     depends_on:
       - db
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ../pebitoro-frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
     networks:
       - app_network
 
