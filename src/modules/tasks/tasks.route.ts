@@ -13,6 +13,11 @@ import { TaskSchema } from './tasks.schema';
 const taskRoutes = (fastify: FastifyInstance) => {
   fastify.get('/', {
     preValidation: [fastify.authenticate],
+    schema: {
+      response: {
+        200: Type.Array(TaskSchema),
+      },
+    },
     handler: getTasksHandler,
   });
   fastify.get('/:id', {
