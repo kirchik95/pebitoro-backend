@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { Type } from '@fastify/type-provider-typebox';
+import { Type } from '@sinclair/typebox';
 
 import { loginHandler, registerHandler } from './auth.controller';
 
