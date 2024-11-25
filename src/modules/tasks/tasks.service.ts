@@ -1,12 +1,16 @@
 import { FastifyRequest } from 'fastify';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 
 import { tasks } from '@db/schema';
 
 export const getTasks = async (request: FastifyRequest) => {
   const { db } = request.server;
 
-  return await db.select().from(tasks).where(eq(tasks.userId, request.user.id));
+  return await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.userId, request.user.id))
+    .orderBy(desc(tasks.createdAt));
 };
 
 export const getTaskById = async (request: FastifyRequest, id: number) => {
