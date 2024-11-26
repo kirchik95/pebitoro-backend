@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import * as tasksService from './tasks.service';
+import { Task } from './tasks.types';
 
 export const getTasksHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   const tasks = await tasksService.getTasks(request);
@@ -22,7 +23,7 @@ export const getTaskByIdHandler = async (
 };
 
 export const createTaskHandler = async (
-  request: FastifyRequest<{ Body: { title: string; description?: string } }>,
+  request: FastifyRequest<{ Body: { title: string } & Partial<Omit<Task, 'id'>> }>,
   reply: FastifyReply,
 ) => {
   const task = await tasksService.createTask(request, request.body);
@@ -32,13 +33,14 @@ export const createTaskHandler = async (
 
 export const updateTaskHandler = async (
   request: FastifyRequest<{
-    Body: { id: string; title?: string; description?: string; status?: string };
+    Params: { id: string };
+    Body: Partial<Omit<Task, 'id'>>;
   }>,
   reply: FastifyReply,
 ) => {
   const task = await tasksService.updateTask(request, {
     ...request.body,
-    id: Number(request.body.id),
+    id: Number(request.params.id),
   });
 
   reply.send(task);

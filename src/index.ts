@@ -8,7 +8,8 @@ import authenticate from '@plugins/authenticate';
 import db from '@plugins/db';
 
 import authRoutes from '@modules/auth/auth.routes';
-import profileRoutes from '@modules/profile/profile.routes';
+import categoriesRoutes from '@modules/categories/categories.route';
+import profileRoutes from '@modules/profile/profile.route';
 import taskRoutes from '@modules/tasks/tasks.route';
 
 dotenv.config();
@@ -39,6 +40,7 @@ fastify.register(authenticate);
 fastify.register(authRoutes, { prefix: '/api/auth' });
 fastify.register(profileRoutes, { prefix: '/api/profile' });
 fastify.register(taskRoutes, { prefix: '/api/tasks' });
+fastify.register(categoriesRoutes, { prefix: '/api/categories' });
 
 const server = async () => {
   try {

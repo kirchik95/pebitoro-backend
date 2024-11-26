@@ -15,6 +15,7 @@
     "docker:db": "docker-compose up db -d",
     "docker:db:stop": "docker-compose stop db",
     "docker:db:restart": "docker-compose restart db",
+    "docker:db:remove": "docker-compose down db -v",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

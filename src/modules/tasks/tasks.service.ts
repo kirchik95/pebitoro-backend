@@ -3,6 +3,8 @@ import { and, desc, eq } from 'drizzle-orm';
 
 import { tasks } from '@db/schema';
 
+import { Task } from './tasks.types';
+
 export const getTasks = async (request: FastifyRequest) => {
   const { db } = request.server;
 
@@ -26,7 +28,7 @@ export const getTaskById = async (request: FastifyRequest, id: number) => {
 
 export const createTask = async (
   request: FastifyRequest,
-  data: { title: string; description?: string },
+  data: { title: string } & Partial<Omit<Task, 'id'>>,
 ) => {
   const { db } = request.server;
 
@@ -38,10 +40,7 @@ export const createTask = async (
   return getTaskById(request, task.id);
 };
 
-export const updateTask = async (
-  request: FastifyRequest,
-  data: { id: number; title?: string; description?: string; status?: string },
-) => {
+export const updateTask = async (request: FastifyRequest, data: { id: number } & Partial<Task>) => {
   const { db } = request.server;
 
   const [task] = await db
