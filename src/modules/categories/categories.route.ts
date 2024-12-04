@@ -41,6 +41,8 @@ const categoriesRoutes = (fastify: FastifyInstance) => {
       body: Type.Object({
         name: CategorySchema.properties.name,
         description: Type.Optional(CategorySchema.properties.description),
+        color: Type.Optional(CategorySchema.properties.color),
+        backgroundColor: Type.Optional(CategorySchema.properties.backgroundColor),
       }),
       response: {
         201: CategorySchema,
@@ -57,6 +59,8 @@ const categoriesRoutes = (fastify: FastifyInstance) => {
       body: Type.Object({
         name: Type.Optional(CategorySchema.properties.name),
         description: Type.Optional(CategorySchema.properties.description),
+        color: Type.Optional(CategorySchema.properties.color),
+        backgroundColor: Type.Optional(CategorySchema.properties.backgroundColor),
       }),
       response: {
         200: CategorySchema,

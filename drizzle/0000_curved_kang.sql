@@ -5,8 +5,15 @@ CREATE TABLE IF NOT EXISTS "categories" (
 	"user_id" integer,
 	"name" varchar(255) NOT NULL,
 	"description" varchar(255) DEFAULT '',
+	"color" varchar(255) DEFAULT '',
+	"backgroundColor" varchar(255) DEFAULT '',
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "task_categories" (
+	"task_id" integer,
+	"category_id" integer
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "tasks" (
@@ -14,7 +21,6 @@ CREATE TABLE IF NOT EXISTS "tasks" (
 	"title" varchar(255) NOT NULL,
 	"description" varchar(255) DEFAULT '',
 	"user_id" integer,
-	"category_id" integer,
 	"status" "status" DEFAULT 'created',
 	"priority" "priority" DEFAULT 'low',
 	"start_at" timestamp DEFAULT now(),
@@ -44,13 +50,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "tasks" ADD CONSTRAINT "tasks_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "task_categories" ADD CONSTRAINT "task_categories_task_id_tasks_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."tasks"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "tasks" ADD CONSTRAINT "tasks_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;
+ ALTER TABLE "task_categories" ADD CONSTRAINT "task_categories_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "tasks" ADD CONSTRAINT "tasks_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

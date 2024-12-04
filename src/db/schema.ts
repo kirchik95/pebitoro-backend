@@ -18,6 +18,8 @@ export const categories = pgTable('categories', {
   userId: integer('user_id').references(() => users.id),
   name: varchar({ length: 255 }).notNull(),
   description: varchar({ length: 255 }).default(''),
+  color: varchar({ length: 255 }).default(''),
+  backgroundColor: varchar({ length: 255 }).default(''),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -25,12 +27,16 @@ export const categories = pgTable('categories', {
 export const statusEnum = pgEnum('status', ['created', 'in_progress', 'done', 'archived']);
 export const priorityEnum = pgEnum('priority', ['low', 'medium', 'high']);
 
+export const taskCategories = pgTable('task_categories', {
+  taskId: integer('task_id').references(() => tasks.id),
+  categoryId: integer('category_id').references(() => categories.id),
+});
+
 export const tasks = pgTable('tasks', {
   id: serial().primaryKey(),
   title: varchar({ length: 255 }).notNull(),
   description: varchar({ length: 255 }).default(''),
   userId: integer('user_id').references(() => users.id),
-  categoryId: integer('category_id').references(() => categories.id, { onDelete: 'set null' }),
   status: statusEnum().default('created'),
   priority: priorityEnum().default('low'),
   startAt: timestamp('start_at').defaultNow(),

@@ -69,9 +69,10 @@ const taskRoutes = (fastify: FastifyInstance) => {
         id: Type.Integer(),
       }),
       body: Type.Object({
-        title: Type.Optional(Type.String()),
-        description: Type.Optional(Type.String()),
-        status: Type.Optional(Type.String()),
+        title: Type.Optional(TaskSchema.properties.title),
+        description: Type.Optional(TaskSchema.properties.description),
+        status: Type.Optional(TaskSchema.properties.status),
+        priority: Type.Optional(TaskSchema.properties.priority),
       }),
       response: {
         200: TaskSchema,
