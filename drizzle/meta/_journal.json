@@ -8,6 +8,21 @@
       "when": 1733249852482,
       "tag": "0000_curved_kang",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1733343666577,
+      "tag": "0001_tired_apocalypse",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1733345290514,
+      "tag": "0002_update_status_enum",
+      "breakpoints": true
     }
   ]
 }
+

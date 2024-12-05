@@ -1,7 +1,8 @@
 import { TaskSchema } from './tasks.schema';
 
 export const StatusEnum = {
-  Created: 'created',
+  Backlog: 'backlog',
+  ToDo: 'todo',
   InProgress: 'in_progress',
   Done: 'done',
   Archived: 'archived',
