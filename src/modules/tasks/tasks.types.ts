@@ -14,4 +14,10 @@ export const PriorityEnum = {
   High: 'high',
 } as const;
 
+export type GetTasksParams = {
+  search?: string;
+  status?: Array<'backlog' | 'todo' | 'in_progress' | 'done' | 'archived'>;
+  priority?: Array<'low' | 'medium' | 'high'>;
+};
+
 export type Task = typeof TaskSchema;

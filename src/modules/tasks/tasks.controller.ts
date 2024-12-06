@@ -1,10 +1,15 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import * as tasksService from './tasks.service';
-import { Task } from './tasks.types';
+import { GetTasksParams, Task } from './tasks.types';
 
-export const getTasksHandler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const tasks = await tasksService.getTasks(request);
+export const getTasksHandler = async (
+  request: FastifyRequest<{
+    Querystring: GetTasksParams;
+  }>,
+  reply: FastifyReply,
+) => {
+  const tasks = await tasksService.getTasks(request, request.query);
 
   reply.send(tasks);
 };

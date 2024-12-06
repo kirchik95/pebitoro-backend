@@ -14,6 +14,11 @@ const taskRoutes = (fastify: FastifyInstance) => {
   fastify.get('/', {
     preValidation: [fastify.authenticate],
     schema: {
+      querystring: Type.Object({
+        search: Type.Optional(Type.String()),
+        status: Type.Optional(Type.Array(TaskSchema.properties.status)),
+        priority: Type.Optional(Type.Array(TaskSchema.properties.priority)),
+      }),
       response: {
         200: Type.Array(TaskSchema),
       },

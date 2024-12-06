@@ -2,6 +2,8 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import fp from 'fastify-plugin';
 import pg from 'pg';
 
+import * as schema from '@db/schema';
+
 const db = fp((fastify) => {
   const pool = new pg.Pool({
     host: process.env.DB_HOST || 'localhost',
@@ -11,7 +13,7 @@ const db = fp((fastify) => {
     database: process.env.DB_NAME || 'app_db',
   });
 
-  const db = drizzle(pool);
+  const db = drizzle(pool, { schema });
 
   fastify.decorate('db', db);
   fastify.addHook('onClose', async () => {

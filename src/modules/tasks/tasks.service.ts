@@ -1,43 +1,49 @@
 import { FastifyRequest } from 'fastify';
-import { and, desc, eq, getTableColumns, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray, or } from 'drizzle-orm';
+import { map } from 'lodash-es';
 
 import { taskCategories, tasks } from '@db/schema';
 
-import { Task } from './tasks.types';
+import { GetTasksParams, Task } from './tasks.types';
 
-export const getTasks = async (request: FastifyRequest) => {
+export const getTasks = async (request: FastifyRequest, params: GetTasksParams) => {
   const { db } = request.server;
+  const { search, status, priority } = params;
 
-  return await db
-    .select({
-      ...getTableColumns(tasks),
-      categories: sql<number[]>`
-        array_agg(${taskCategories.categoryId}) filter (where ${taskCategories.categoryId} is not null)
-      `,
-    })
-    .from(tasks)
-    .leftJoin(taskCategories, eq(tasks.id, taskCategories.taskId))
-    .where(eq(tasks.userId, request.user.id))
-    .groupBy(tasks.id)
-    .orderBy(desc(tasks.createdAt));
+  const whereConditions = [
+    eq(tasks.userId, request.user.id),
+    search
+      ? or(ilike(tasks.title, `%${search}%`), ilike(tasks.description, `%${search}%`))
+      : undefined,
+    priority?.length ? inArray(tasks.priority, priority) : undefined,
+    status?.length ? inArray(tasks.status, status) : undefined,
+  ].filter(Boolean);
+
+  const items = await db.query.tasks.findMany({
+    where: and(...whereConditions),
+    with: { categories: { with: { category: { columns: { id: true } } } } },
+    orderBy: desc(tasks.createdAt),
+  });
+
+  return items.map((item) => ({
+    ...item,
+    categories: map(item.categories, 'category.id'),
+  }));
 };
 
 export const getTaskById = async (request: FastifyRequest, id: number) => {
   const { db } = request.server;
 
-  const [task] = await db
-    .select({
-      ...getTableColumns(tasks),
-      categories: sql<number[]>`
-        array_agg(${taskCategories.categoryId}) filter (where ${taskCategories.categoryId} is not null)
-      `,
-    })
-    .from(tasks)
-    .leftJoin(taskCategories, eq(tasks.id, taskCategories.taskId))
-    .where(and(eq(tasks.id, id), eq(tasks.userId, request.user.id)))
-    .groupBy(tasks.id);
+  const task = await db.query.tasks.findFirst({
+    where: and(eq(tasks.id, id), eq(tasks.userId, request.user.id)),
+    with: { categories: { with: { category: { columns: { id: true } } } } },
+  });
 
-  return task;
+  if (!task) {
+    return null;
+  }
+
+  return { ...task, categories: map(task.categories, 'category.id') };
 };
 
 export const createTask = async (
@@ -50,35 +56,23 @@ export const createTask = async (
     const [task] = await tx
       .insert(tasks)
       .values({ ...data, userId: request.user.id })
-      .returning({
-        ...getTableColumns(tasks),
-        categories: sql<number[]>`ARRAY[]::integer[]`,
-      });
+      .returning();
 
     if (data.categories?.length) {
-      await tx.insert(taskCategories).values(
-        data.categories.map((categoryId) => ({
-          taskId: task.id,
-          categoryId,
-        })),
-      );
-
-      const [taskWithCategories] = await tx
-        .select({
-          ...getTableColumns(tasks),
-          categories: sql<number[]>`(
-           SELECT array_agg(category_id)
-           FROM ${taskCategories}
-           WHERE task_id = ${task.id}
-         )`,
-        })
-        .from(tasks)
-        .where(eq(tasks.id, task.id));
-
-      return taskWithCategories;
+      await tx
+        .insert(taskCategories)
+        .values(map(data.categories, (categoryId) => ({ taskId: task.id, categoryId })));
     }
 
-    return task;
+    const taskWithCategories = await tx.query.tasks.findFirst({
+      where: eq(tasks.id, task.id),
+      with: { categories: { with: { category: { columns: { id: true } } } } },
+    });
+
+    return {
+      ...taskWithCategories,
+      categories: map(taskWithCategories?.categories, 'category.id'),
+    };
   });
 };
 
@@ -108,20 +102,20 @@ export const updateTask = async (
       }
     }
 
-    const [updatedTask] = await tx
+    await tx
       .update(tasks)
       .set({ ...taskData, updatedAt: new Date() })
-      .where(eq(tasks.id, data.id))
-      .returning({
-        ...getTableColumns(tasks),
-        categories: sql<number[]>`(
-          SELECT array_agg(category_id) 
-          FROM ${taskCategories} 
-          WHERE task_id = ${data.id}
-        )`,
-      });
+      .where(eq(tasks.id, data.id));
 
-    return updatedTask;
+    const updatedTask = await tx.query.tasks.findFirst({
+      where: eq(tasks.id, data.id),
+      with: { categories: { with: { category: { columns: { id: true } } } } },
+    });
+
+    return {
+      ...updatedTask,
+      categories: map(updatedTask?.categories, 'category.id'),
+    };
   });
 };
 
@@ -129,7 +123,9 @@ export const deleteTask = async (request: FastifyRequest, id: number) => {
   const { db } = request.server;
 
   return await db.transaction(async (tx) => {
-    const task = await getTaskById(request, id);
+    const task = await tx.query.tasks.findFirst({
+      where: and(eq(tasks.id, id), eq(tasks.userId, request.user.id)),
+    });
 
     if (!task) {
       throw new Error('Task not found');

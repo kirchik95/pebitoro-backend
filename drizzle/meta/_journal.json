@@ -22,7 +22,13 @@
       "when": 1733345290514,
       "tag": "0002_update_status_enum",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1733508989236,
+      "tag": "0003_majestic_nocturne",
+      "breakpoints": true
     }
   ]
 }
-
