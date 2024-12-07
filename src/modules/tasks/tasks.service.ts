@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 import { and, desc, eq, ilike, inArray, or } from 'drizzle-orm';
-import { map } from 'lodash-es';
+import { intersection, map } from 'lodash-es';
 
 import { taskCategories, tasks } from '@db/schema';
 
@@ -8,7 +8,7 @@ import { GetTasksParams, Task } from './tasks.types';
 
 export const getTasks = async (request: FastifyRequest, params: GetTasksParams) => {
   const { db } = request.server;
-  const { search, status, priority } = params;
+  const { search, status, priority, categories } = params;
 
   const whereConditions = [
     eq(tasks.userId, request.user.id),
@@ -25,7 +25,15 @@ export const getTasks = async (request: FastifyRequest, params: GetTasksParams) 
     orderBy: desc(tasks.createdAt),
   });
 
-  return items.map((item) => ({
+  const categoryIds = categories
+    ? (Array.isArray(categories) ? categories : [categories]).map(Number)
+    : [];
+
+  const filteredItems = categoryIds.length
+    ? items.filter((item) => intersection(map(item.categories, 'category.id'), categoryIds).length)
+    : items;
+
+  return filteredItems.map((item) => ({
     ...item,
     categories: map(item.categories, 'category.id'),
   }));
