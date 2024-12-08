@@ -1,10 +1,14 @@
 import { FastifyRequest } from 'fastify';
 import { compare, hash } from 'bcrypt';
 import { eq, getTableColumns } from 'drizzle-orm';
+import { omit } from 'lodash-es';
 
 import { users } from '@db/schema';
 
-export const register = async (request: FastifyRequest, data: { email: string; password: string }) => {
+export const register = async (
+  request: FastifyRequest,
+  data: { email: string; password: string },
+) => {
   const { db } = request.server;
 
   const hashedPassword = await hash(data.password, 10);
@@ -17,13 +21,13 @@ export const register = async (request: FastifyRequest, data: { email: string; p
     })
     .returning();
 
-  return {
+  const token = request.server.jwt.sign({
     id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    middleName: user.middleName,
-  };
+  });
+
+  const result = { token, user: omit(user, ['password']) };
+
+  return result;
 };
 
 export const login = async (request: FastifyRequest, data: { email: string; password: string }) => {
