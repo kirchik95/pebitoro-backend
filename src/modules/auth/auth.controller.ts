@@ -3,7 +3,9 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import * as authService from './auth.service';
 
 export const registerHandler = async (
-  request: FastifyRequest<{ Body: { email: string; password: string } }>,
+  request: FastifyRequest<{
+    Body: { email: string; password: string; firstName: string; lastName: string };
+  }>,
   reply: FastifyReply,
 ) => {
   const user = await authService.register(request, request.body);
