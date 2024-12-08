@@ -7,7 +7,7 @@ import { users } from '@db/schema';
 
 export const register = async (
   request: FastifyRequest,
-  data: { email: string; password: string },
+  data: { email: string; password: string; firstName: string; lastName: string },
 ) => {
   const { db } = request.server;
 
@@ -16,6 +16,8 @@ export const register = async (
   const [user] = await db
     .insert(users)
     .values({
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
       password: hashedPassword,
     })

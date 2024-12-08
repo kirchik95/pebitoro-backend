@@ -9,6 +9,8 @@ const authRoutes = (fastify: FastifyInstance) => {
       body: Type.Object({
         email: Type.String({ format: 'email' }),
         password: Type.String(),
+        firstName: Type.String(),
+        lastName: Type.String(),
       }),
     },
     handler: registerHandler,
