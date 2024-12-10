@@ -1,10 +1,10 @@
 import { FastifyRequest } from 'fastify';
-import { and, desc, eq, ilike, inArray, or } from 'drizzle-orm';
-import { intersection, map } from 'lodash-es';
+import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { intersection, map, values } from 'lodash-es';
 
 import { taskCategories, tasks } from '@db/schema';
 
-import { GetTasksParams, Task } from './tasks.types';
+import { GetTasksParams, PriorityEnum, StatusEnum, Task } from './tasks.types';
 
 export const getTasks = async (request: FastifyRequest, params: GetTasksParams) => {
   const { db } = request.server;
@@ -52,6 +52,56 @@ export const getTaskById = async (request: FastifyRequest, id: number) => {
   }
 
   return { ...task, categories: map(task.categories, 'category.id') };
+};
+
+export const getTasksCount = async (
+  request: FastifyRequest,
+  params: { countBy: 'status' | 'priority' | 'category' },
+) => {
+  const { db } = request.server;
+  const { countBy } = params;
+
+  if (countBy === 'category') {
+    const result = await db
+      .select({
+        categoryId: taskCategories.categoryId,
+        count: sql<number>`count(distinct ${tasks.id})::int`.as('count'),
+      })
+      .from(taskCategories)
+      .leftJoin(tasks, eq(tasks.id, taskCategories.taskId))
+      .where(eq(tasks.userId, request.user.id))
+      .groupBy(taskCategories.categoryId);
+
+    return Object.fromEntries(result.map(({ categoryId, count }) => [categoryId, count])) as Record<
+      number,
+      number
+    >;
+  }
+
+  const enumMap = {
+    status: {
+      enum: StatusEnum,
+      column: tasks.status,
+    },
+    priority: {
+      enum: PriorityEnum,
+      column: tasks.priority,
+    },
+  }[countBy];
+
+  const items = values(enumMap.enum);
+
+  const counts = await Promise.all(
+    map(items, async (item) => {
+      const count = await db.$count(
+        tasks,
+        and(eq(tasks.userId, request.user.id), eq(enumMap.column, item)),
+      );
+      return [item, count] as const;
+    }),
+  );
+
+  return Object.fromEntries(counts);
 };
 
 export const createTask = async (

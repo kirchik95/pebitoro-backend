@@ -5,6 +5,7 @@ import {
   createTaskHandler,
   deleteTaskHandler,
   getTaskByIdHandler,
+  getTasksCountHandler,
   getTasksHandler,
   updateTaskHandler,
 } from './tasks.controller';
@@ -39,6 +40,22 @@ const taskRoutes = (fastify: FastifyInstance) => {
       },
     },
     handler: getTaskByIdHandler,
+  });
+  fastify.get('/count', {
+    preValidation: [fastify.authenticate],
+    schema: {
+      querystring: Type.Object({
+        countBy: Type.Union([
+          Type.Literal('status'),
+          Type.Literal('priority'),
+          Type.Literal('category'),
+        ]),
+      }),
+      response: {
+        200: Type.Object({}, { additionalProperties: Type.Number() }),
+      },
+    },
+    handler: getTasksCountHandler,
   });
   fastify.post('/', {
     preValidation: [fastify.authenticate],

@@ -27,6 +27,15 @@ export const getTaskByIdHandler = async (
   reply.send(task);
 };
 
+export const getTasksCountHandler = async (
+  request: FastifyRequest<{ Querystring: { countBy: 'status' | 'priority' | 'category' } }>,
+  reply: FastifyReply,
+) => {
+  const count = await tasksService.getTasksCount(request, request.query);
+
+  reply.send(count);
+};
+
 export const createTaskHandler = async (
   request: FastifyRequest<{ Body: { title: string } & Partial<Omit<Task, 'id'>> }>,
   reply: FastifyReply,
